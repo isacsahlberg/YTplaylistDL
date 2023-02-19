@@ -1,0 +1,5 @@
+python3
+
+# non-standard python packages
+pytube
+pydub
