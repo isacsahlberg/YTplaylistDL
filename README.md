@@ -4,7 +4,7 @@
 ### Usage:
 Running
 ```bash
-$ python main_downloader.py -l "<link here>"
+$ python playlist_downloader.py -l "<link here>"
 ```
 will download the audio files from the individual videos, and additionally
 call the ```merge()``` function from the ```merger.py``` file, which combines the
