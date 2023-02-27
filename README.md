@@ -39,7 +39,7 @@ $ audio.download()
 ```
 
 but for a long playlist, we can do everything in one swoop. 
-The ```main_downloader.py``` simply uses a YouTube Playlist object to download the audio from all of the videos, one by one.
+The ```playlist_downloader.py``` simply uses a YouTube Playlist object to download the audio from all of the videos, one by one.
 The second part is then about merging those audio files into one long track; that's all handled by the function defined in ```merger.py```.
 By default, the audio files will be ordered in the same order as the original playlist. You can use a custom ordering key if you'd like, but that part is on you.
 
