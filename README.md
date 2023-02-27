@@ -1,7 +1,7 @@
 # YouTube Playlist downloader/merger
 
 
-## Usage:
+### Usage:
 Running
 ```bash
 $ python main_downloader.py -l "<link here>"
