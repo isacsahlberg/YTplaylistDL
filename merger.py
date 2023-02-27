@@ -27,16 +27,9 @@ def merge(
         counter += 1
         print(f"{filename[:24]} extracted -- {counter} audio files in total")
     print("---> Done!\n")
-    # for filename in sorted(os.listdir(folname)):
-    #     if filename.split('.')[-1] == format_:
-    #         filepath = Path(folname, filename)
-    #         sounds.append(AudioSegment.from_file(filepath))
-    #         counter += 1
-    #         print(f"{filename[:24]} extracted -- {counter} audio files extracted in total")
 
-    # Awesome!
-    # These AudioSegment objects have a nicely defined __add__ method (appends sounds)
-    # and we can simply sum them, s1 + s2 -- OR we can simply take a sum over the list!
+    # Awesome! These AudioSegment objects have a nicely defined __add__ method (appends sounds)
+    # and we can simply sum them, s1 + s2 -- or we can simply take a sum over the list!
     print("---> Merging...")
     merged = sum(sounds)  # another AudioSegment object
     print("---> Done!\n")
