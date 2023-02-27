@@ -1,61 +1,65 @@
-import merger
-
-import time
-t1 = time.monotonic()
-
 import argparse
 import os
 from pytube import Playlist
+import time
 
-if not os.path.exists('audio_files/'):
-    os.mkdir('audio_files/')
+import merger
 
-    # #%% maybe add later for command-line arguments and stuff
-    # parser = argparse.ArgumentParser
-    # parser.add_argument("--link", "-l", help="give link to the Youtube playlist")
-    # return parser.parse_known_args()[0]
+t1 = time.monotonic()
 
-# # Note that if you just want to download the audio of 1 Youtube video, this is how:
-# from pytube import YouTube
-# v = YouTube('https://www.youtube.com/watch?v=nPHIZw7HZq4')
-# a = v.streams.get_audio_only()
-# a.download()  # or the more specific  a.download('audio_files/')
+if not os.path.exists("audio_files/"):
+    os.mkdir("audio_files/")
 
-# Link -- "Bach The Well-Tempered Clavier András Schiff" ...
-# For this particular link, we want the audio files ordered with this key
-link = 'https://www.youtube.com/playlist?list=PLJ-xfJ6MiKtxytddZgWWTnyvVGNLiDifU'
-key = lambda file_str: int(file_str.split()[-1].split('.')[0])
+parser = argparse.ArgumentParser()
+parser.add_argument("--link", "-l", help="give link to the Youtube playlist")
+p = parser.parse_known_args()[0]
 
-# For this particular link, we want the audio files ordered with this key
+# Link
+# The default order is the same as in the original playlist
+link = "https://www.youtube.com/playlist?list=OLAK5uy_lkiSEO2O57_2YQroYKBmBaUCbAJuWxqqQ"
+
+# for custom ordering, we can use a key, e.g.
+# link = "https://www.youtube.com/playlist?list=PLJ-xfJ6MiKtxytddZgWWTnyvVGNLiDifU"
+# key = lambda filename: int(filename.split()[-1].split(".")[0])
+#
 # link = 'https://www.youtube.com/playlist?list=PLVA3F_69rVEx40NiR-LoAb2D0vNzgfreB'
-# key = lambda file_str: file_str.split()[4]
+# key = lambda filename: int(filename.split()[4])
+
+if p.link:
+    link = p.link
+else:
+    print(f"\nYou provided no '--link' --> continuing with \n{link}\n")
 
 playlist = Playlist(link)
 title = playlist.title
 
-# videos = playlist.videos  # (quasi)list of YouTube objects
-videos = [v for v in playlist.videos]  # list of YouTube objects (for better slicing)
-# videos = videos[:3]
-title = 'J.S. Bach - The Well-Tempered Clavier Book I - András Schiff (1986)'
+# Now, playlist.videos is an iterable of YouTube objects, we want a proper list
+videos = [v for v in playlist.videos]
+# videos = videos[:3]  # for testing
+
+# Give the titles an extra beginning so that they are then alphabetically
+# ordered but preserve the original order
+titles = [
+    (f"{i+1:02}-" + v.title).replace(":", " -") for i, v in enumerate(videos)
+]
 
 
 #%%
-
-# Focus only on the audio
-# audios = [video.streams.get_audio_only() for video in Playlist(link).videos]
+# Extract only on the audio
 audios = []
 subtypes = []
 counter = 0
 for video in videos:
-    # audio = video.streams.get_audio_only()
     try:
         audio = video.streams.get_audio_only()
     except:
-        print("Something didn't quite work \n(Sometimes this just happens?", \
-              "especially IncompleteRead or whatever it's called)")
-        print('Exiting........')
-        exit(0)
-    
+        print(
+            "Something didn't quite work \n(Sometimes this just happens?",
+            "especially IncompleteRead or whatever it's called)",
+        )
+        print("Exiting........")
+        exit_()  # yeah yeah I know, this is just to abort
+
     audios.append(audio)
     subtypes.append(audio.subtype)
     counter += 1
@@ -71,15 +75,18 @@ else:
     print("What do we do now...?")
     exit_()
 
-# Download
-for audio in audios:
-    audio.download('audio_files/')  # only works if the filename is _not_ taken (which should be quite fine)
 
 #%%
+# Download
+print(f"Attempting to download {len(audios)} files...")
+for audio, title_ in zip(audios, titles):
+    audio.download(filename="audio_files/" + title_ + "." + audio.subtype)
 
-# Merging
-merger.merge('audio_files/', subtype, title, key)
 
+#%%
+# Merging -- the default order is alphabetical
+# for a custom order, use a key (see above)
+merger.merge("audio_files/", subtype, title, key=None)
 
 t2 = time.monotonic()
 print(f"That took {(t2-t1)/60:.2f} min")
